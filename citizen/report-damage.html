@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Damage - Road Damage Detection</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <link rel="stylesheet" href="styles/report-damage.css">
+</head>
+
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h1>Report New Damage</h1>
+        <div class="profile-container">
+            <div class="profile-icon" onclick="toggleProfileMenu()">👤</div>
+            <div class="profile-menu" id="profileMenu">
+                <div class="menu-header">
+                    <span class="user-name">Loading...</span>
+                    <span class="user-role">Role</span>
+                </div>
+                <button class="menu-item logout" onclick="confirmLogout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="report-damage.html" class="nav-link active">Report Damage</a>
+        <a href="tracking.html" class="nav-link">Track Reports</a>
+        <a href="notifications.html" class="nav-link">Notifications</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="report-form-container">
+
+            <!-- ===== TAB SWITCHER ===== -->
+            <div class="tab-switcher">
+                <button class="tab-btn active" id="tabRealtime" onclick="switchTab('realtime')">📹 Realtime
+                    Detection</button>
+            </div>
+
+            <!-- ===================================================
+                 TAB 3: REALTIME
+                 =================================================== -->
+            <div class="tab-panel active" id="panelRealtime">
+                <div class="upload-section">
+                    <!-- Webcam feed -->
+                    <div class="webcam-container" id="webcamContainer">
+                        <div id="webcamPlaceholder">
+                            <div class="upload-icon">📷</div>
+                            <p style="color:#666;">Click "Start Detection" to begin</p>
+                        </div>
+                        <video id="webcamVideo" autoplay playsinline muted></video>
+
+                        <!-- Live badge -->
+                        <div class="live-badge" id="liveBadge">
+                            <div class="live-dot"></div> LIVE
+                        </div>
+
+                        <!-- Detection overlay -->
+                        <div class="detection-overlay" id="detectionOverlay"></div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="rt-stats">
+                        <div class="rt-stat">
+                            <div class="rt-value" id="rtTotal">0</div>
+                            <div class="rt-label">Total Detections</div>
+                        </div>
+                        <div class="rt-stat">
+                            <div class="rt-value" id="rtFrames">0</div>
+                            <div class="rt-label">Frames Sent</div>
+                        </div>
+                        <div class="rt-stat">
+                            <div class="rt-value" id="rtStatus" style="font-size:1rem;">Idle</div>
+                            <div class="rt-label">Status</div>
+                        </div>
+                    </div>
+
+                    <!-- GPS location display for realtime reports -->
+                    <div class="info-section" style="margin-top:1rem;">
+                        <div class="form-group">
+                            <label class="form-label">📍 GPS Location</label>
+                            <div class="info-display" id="rtLocationDisplay">Acquiring location...</div>
+                        </div>
+                    </div>
+
+                    <!-- Last detection card + submit button -->
+                    <div id="rtLastDetectionCard"
+                        style="display:none; margin-top:1rem; padding:1rem; background:rgba(79,70,229,0.1); border:1px solid #4f46e5; border-radius:10px;">
+                        <h4 style="margin-bottom:0.5rem;">📸 Last Detection</h4>
+                        <p id="rtLastDetectionLabel" style="color:#a5b4fc; margin-bottom:0.75rem;"></p>
+                        <img id="rtLastDetectionImg" alt="Last detected frame"
+                            style="width:100%; border-radius:8px; border:1px solid #4f46e5; margin-bottom:0.75rem; display:none;">
+                        <div class="form-group">
+                            <label class="form-label">Description (Optional)</label>
+                            <textarea class="form-textarea" id="rtDescriptionInput"
+                                placeholder="Provide additional details..." rows="2"></textarea>
+                        </div>
+                        <button class="btn btn-primary" id="rtSubmitBtn" style="width:100%; margin-top:0.5rem;"
+                            onclick="submitRealtimeReport()">📤 Submit Report</button>
+                        <p id="rtSubmitStatus"
+                            style="text-align:center; color:#a5b4fc; font-size:0.85rem; margin-top:0.5rem; display:none;">
+                        </p>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="rt-controls">
+                        <button class="btn btn-primary" id="rtStartBtn" onclick="startRealtime()">▶️ Start
+                            Detection</button>
+                        <button class="btn btn-secondary" id="rtStopBtn" onclick="stopRealtime()"
+                            style="display:none;">⏹️ Stop</button>
+                        <button class="btn btn-secondary" id="rtSwitchBtn" onclick="switchCamera()"
+                            style="display:none;" title="Switch between front and back camera">🔄 Switch Camera</button>
+                    </div>
+
+                    <p style="color:#666; font-size:0.85rem; margin-top:1rem;">
+                        💡 Frames are sent to the server every 1 second for analysis. Allow camera access when prompted.
+                    </p>
+                </div>
+            </div>
+
+        </div><!-- /report-form-container -->
+    </div><!-- /container -->
+
+    <script src="../shared/navigation.js"></script>
+    <script src="../shared/modal.js"></script>
+    <script src="../shared/auth.js"></script>
+    <script src="scripts/report-damage.js"></script>
+</body>
+
+</html>

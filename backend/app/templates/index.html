@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Assignment & Infrastructure Reporting System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='shared/styles.css') }}">
+    <style>
+        body {
+            background-color: #050510;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .hero-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #050510 100%);
+        }
+
+        .system-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #fff, #0d6efd);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .system-subtitle {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        .access-cards {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .access-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 350px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .access-card:hover {
+            transform: translateY(-5px);
+            border-color: #0d6efd;
+            box-shadow: 0 10px 30px rgba(13, 110, 253, 0.2);
+        }
+
+        .role-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .role-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .role-desc {
+            color: #999;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .btn-access {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-citizen {
+            background: #0d6efd;
+            color: white;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        }
+
+        .btn-citizen:hover {
+            background: #0b5ed7;
+            transform: translateY(-2px);
+        }
+
+        .btn-official {
+            background: transparent;
+            border: 2px solid #0d6efd;
+            color: #0d6efd;
+        }
+
+        .btn-official:hover {
+            background: rgba(13, 110, 253, 0.1);
+            color: white;
+        }
+
+        .main-footer {
+            background: #000;
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid #222;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: #0d6efd;
+        }
+
+        .disclaimer {
+            color: #444;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header
+        style="padding: 1.5rem; background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div
+                style="width: 40px; height: 40px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000;">
+                🏛️</div>
+            <div style="color: #fff; font-weight: 600; letter-spacing: 0.5px;">OFFICIAL MUNICIPAL PORTAL</div>
+        </div>
+    </header>
+
+    <div class="hero-section">
+        <h1 class="system-title">Work Assignment & Infrastructure Reporting System</h1>
+        <p class="system-subtitle">A centralized platform for citizens to report infrastructure issues and for
+            government officials to manage repairs efficiently.</p>
+
+        <div class="access-cards">
+            <!-- Citizen Card -->
+            <div class="access-card">
+                <span class="role-icon">📱</span>
+                <h2 class="role-title">Citizen Access</h2>
+                <p class="role-desc">Report road damage, potholes, or infrastructure issues directly. Track the status
+                    of your reports in real-time.</p>
+                <!-- Links need to be compatible with Static Folder config -->
+                <a href="citizen/login.html" class="btn-access btn-citizen">Report Infrastructure Damage</a>
+            </div>
+
+            <!-- Official Card -->
+            <div class="access-card">
+                <span class="role-icon">🛡️</span>
+                <h2 class="role-title">Official Access</h2>
+                <p class="role-desc">For authorized government personnel only. Verify reports, assign contractors, and
+                    manage work orders.</p>
+                <a href="official/login.html" class="btn-access btn-official">Official Login</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Use</a>
+            <a href="#">Accessibility</a>
+            <a href="#">Contact Support</a>
+        </div>
+        <div class="disclaimer">
+            &copy; 2024 Municipal Corporation. All rights reserved. | Official Government System
+        </div>
+    </footer>
+
+</body>
+
+</html>

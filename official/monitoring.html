@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Monitoring - Road Damage Detection</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <link rel="stylesheet" href="styles/monitoring.css">
+</head>
+
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h1>Work Monitoring</h1>
+        <div class="profile-container">
+            <div class="profile-icon" onclick="toggleProfileMenu()">👤</div>
+            <div class="profile-menu" id="profileMenu">
+                <div class="menu-header">
+                    <span class="user-name">Loading...</span>
+                    <span class="user-role">Role</span>
+                </div>
+                <button class="menu-item logout" onclick="confirmLogout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="work-reports.html" class="nav-link">Work Reports</a>
+        <a href="verification.html" class="nav-link">Verify Reports</a>
+        <a href="assignment.html" class="nav-link">Assign Work</a>
+        <a href="monitoring.html" class="nav-link active">Monitor Work</a>
+        <a href="analytics.html" class="nav-link">Analytics</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Work Status Selector -->
+        <div class="work-selector">
+            <label class="form-label">Select Work to Monitor:</label>
+            <select class="form-select" id="workSelector" onchange="loadWorkDetails()">
+                <option value="">-- Select Work Order --</option>
+            </select>
+        </div>
+
+        <!-- Work Details -->
+        <div id="workDetails" style="display: none;">
+            <!-- Work Status Indicator -->
+            <div class="work-status-section">
+                <h2>Work Status</h2>
+                <div class="work-status-indicator" id="workStatusIndicator">
+                    <!-- Status indicator will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Before/After Photos -->
+            <div class="photos-section">
+                <h2>Photo Documentation</h2>
+                <div class="photo-comparison">
+                    <div class="photo-card">
+                        <h3>Before</h3>
+                        <img id="beforePhoto" class="comparison-photo" alt="Before repair">
+                    </div>
+                    <div class="photo-card">
+                        <h3>After</h3>
+                        <img id="afterPhoto" class="comparison-photo" alt="After repair">
+                    </div>
+                </div>
+            </div>
+
+            <!-- GPS & Timestamp Logs -->
+            <div class="logs-section">
+                <h2>Work Logs</h2>
+                <div class="logs-container" id="logsContainer">
+                    <!-- Logs will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="monitoring-actions">
+                <button class="btn btn-success btn-large" id="markCompletedBtn" onclick="markCompleted()">
+                    Mark as Completed
+                </button>
+                <button class="btn btn-danger" onclick="flagIssue()">
+                    Flag Issue
+                </button>
+            </div>
+        </div>
+
+        <!-- All Active Works -->
+        <div class="active-works-section">
+            <h2>Active Work Orders</h2>
+            <div class="works-grid" id="worksGrid">
+                <!-- Work cards will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared/navigation.js"></script>
+    <script src="../shared/modal.js"></script>
+    <script src="scripts/monitoring.js"></script>
+</body>
+
+</html>

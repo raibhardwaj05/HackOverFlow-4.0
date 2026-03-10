@@ -1,0 +1,90 @@
+/* Officer Dashboard Styles */
+
+.kpi-section {
+    margin-bottom: 2rem;
+}
+
+.kpi-section h2 {
+    margin-bottom: 1.5rem;
+    color: #fff;
+}
+
+.filters-section {
+    margin-bottom: 2rem;
+}
+
+.filters-section h2 {
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.filters-container {
+    background: #1a1a2e;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    border: 1px solid #16213e;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    align-items: end;
+}
+
+.reports-section h2 {
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.table-actions .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Slide Panel */
+.slide-panel {
+    position: fixed;
+    top: 0;
+    right: -420px;
+    width: 420px;
+    height: 100%;
+    background: #0f172a;
+    color: #fff;
+    box-shadow: -4px 0 10px rgba(0,0,0,0.4);
+    transition: right 0.3s ease;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+}
+
+.slide-panel.open {
+    right: 0;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #020617;
+    border-bottom: 1px solid #334155;
+}
+
+.close-btn {
+    background: none;
+    color: #fff;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.panel-content {
+    padding: 16px;
+    overflow-y: auto;
+}
+

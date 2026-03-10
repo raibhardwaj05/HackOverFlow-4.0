@@ -1,0 +1,88 @@
+/* Citizen Dashboard Styles */
+
+.primary-action {
+    text-align: center;
+    margin: 3rem 0;
+}
+
+.btn-large {
+    padding: 1.5rem 3rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.status-summary {
+    margin: 2rem 0;
+}
+
+.status-summary h2 {
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.status-chips-container {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.recent-reports {
+    margin: 2rem 0;
+}
+
+.recent-reports h2 {
+    margin-bottom: 1.5rem;
+    color: #fff;
+}
+
+.reports-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.report-card {
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    border: 1px solid #16213e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.report-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    border-color: #0d6efd;
+}
+
+.report-card-info {
+    flex: 1;
+}
+
+.report-card-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.report-card-meta {
+    color: #999;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.report-card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.quick-actions {
+    text-align: center;
+    margin: 2rem 0;
+}

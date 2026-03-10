@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Officer Dashboard - Road Damage Detection</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <link rel="stylesheet" href="styles/dashboard.css">
+</head>
+
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h1>Officer Dashboard</h1>
+        <div class="profile-container">
+            <div class="profile-icon" onclick="toggleProfileMenu()">👤</div>
+            <div class="profile-menu" id="profileMenu">
+                <div class="menu-header">
+                    <span class="user-name">Loading...</span>
+                    <span class="user-role">Role</span>
+                </div>
+                <button class="menu-item logout" onclick="confirmLogout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-link active">Dashboard</a>
+        <a href="work-reports.html" class="nav-link">Work Reports</a>
+        <a href="verification.html" class="nav-link">Verify Reports</a>
+        <a href="assignment.html" class="nav-link">Assign Work</a>
+        <a href="monitoring.html" class="nav-link">Monitor Work</a>
+        <a href="analytics.html" class="nav-link">Analytics</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- KPI Cards -->
+        <div class="kpi-section">
+            <h2>Overview</h2>
+            <div class="grid grid-4">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Reports</div>
+                    <div class="kpi-value" id="totalReports">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Pending</div>
+                    <div class="kpi-value" id="pendingReports">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">In Progress</div>
+                    <div class="kpi-value" id="inProgressReports">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Critical</div>
+                    <div class="kpi-value" id="criticalReports">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <h2>Filters</h2>
+            <div class="filters-container">
+                <div class="form-group">
+                    <label class="form-label">Sector</label>
+                    <select class="form-select" id="sectorFilter" onchange="applyFilters()">
+                        <option value="">All Sectors</option>
+                        <option value="sector1">Sector 1</option>
+                        <option value="sector2">Sector 2</option>
+                        <option value="sector3">Sector 3</option>
+                        <option value="sector4">Sector 4</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Severity</label>
+                    <select class="form-select" id="severityFilter" onchange="applyFilters()">
+                        <option value="">All Severities</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="statusFilter" onchange="applyFilters()">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="verified">Verified</option>
+                        <option value="assigned">Assigned</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="reports-section">
+            <h2>Reports</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Report ID</th>
+                            <th>Location</th>
+                            <th>Sector</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody">
+                        <!-- Reports will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide Panel -->
+    <div id="reportPanel" class="slide-panel">
+        <div class="panel-header">
+            <h2>Report Details</h2>
+            <button class="close-btn" onclick="closePanel()">✕</button>
+        </div>
+
+        <div class="panel-content">
+            <p><strong>Damage Type:</strong> <span id="panelDamageType"></span></p>
+            <p><strong>Confidence:</strong> <span id="panelConfidence"></span></p>
+            <p><strong>Severity:</strong> <span id="panelSeverity"></span></p>
+            <p><strong>Status:</strong> <span id="panelStatus"></span></p>
+
+            <h3>Location</h3>
+            <div id="panelMap" style="height: 250px; border-radius: 8px;"></div>
+        </div>
+    </div>
+
+
+    <script src="../shared/navigation.js"></script>
+    <script src="../shared/modal.js"></script>
+    <script src="../shared/auth.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="scripts/dashboard.js"></script>
+</body>
+
+</html>

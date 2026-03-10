@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official Registration - Road Damage Detection</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+        }
+
+        .login-card {
+            background: #16213e;
+            padding: 2.5rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid #0d6efd;
+            /* Blue border for official distinction */
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #aaa;
+        }
+
+        .badge-official {
+            background: #0d6efd;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: #0d6efd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <span class="badge-official">AUTHORIZED PERSONNEL REGISTRATION</span>
+            <h1>Create Official Account</h1>
+            <p>For Government Infrastructure Staff</p>
+        </div>
+        <form onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input" required placeholder="Enter officer name">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-input" required placeholder="name@dept.gov.in">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Department</label>
+                <select class="form-input" required>
+                    <option value="" disabled selected>Select Department</option>
+                    <option value="Roads & Highways">Roads & Highways</option>
+                    <option value="Municipal Corporation">Municipal Corporation</option>
+                    <option value="Public Works (PWD)">Public Works (PWD)</option>
+                    <option value="Traffic Control">Traffic Control</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="password-container">
+                    <input type="password" class="form-input password-input" id="passwordInput" required
+                        placeholder="Create a strong password">
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility('passwordInput')">
+                        👁️
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Register Official</button>
+        </form>
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="login.html" style="color: #0d6efd; text-decoration: none; font-size: 0.9rem;">Already have an
+                account? Login</a>
+        </div>
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+
+    <script src="../shared/modal.js"></script>
+    <script src="../shared/auth.js"></script>
+    <script>
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const inputs = e.target.querySelectorAll('input');
+            const select = e.target.querySelector('select');
+
+            const name = inputs[0].value;
+            const email = inputs[1].value;
+            const department = select.value;
+            const password = document.getElementById('passwordInput').value;
+
+            try {
+                // Pass role='official' and the selected department
+                await Auth.register(name, email, password, 'official', department);
+
+                // On success, show modal and redirect to login
+                if (window.showModal) {
+                    showModal('Registration Successful', 'Official account created. Please await approval or login if authorized.', 'success', () => {
+                        window.location.href = 'login.html';
+                    });
+                } else {
+                    alert('Registration Successful! Please login.');
+                    window.location.href = 'login.html';
+                }
+
+            } catch (error) {
+                if (window.showModal) showModal('Registration Failed', error.message, 'error');
+                else alert(error.message);
+            }
+        }
+    </script>
+</body>
+
+</html>

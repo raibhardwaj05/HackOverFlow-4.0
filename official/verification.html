@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Report - Road Damage Detection</title>
+
+    <link rel="stylesheet" href="../shared/styles.css">
+    <link rel="stylesheet" href="styles/verification.css">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+</head>
+
+<body>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <h1>Report Verification</h1>
+        <div class="profile-container">
+            <div class="profile-icon" onclick="toggleProfileMenu()">👤</div>
+            <div class="profile-menu" id="profileMenu">
+                <div class="menu-header">
+                    <span class="user-name">Loading...</span>
+                    <span class="user-role">Role</span>
+                </div>
+                <button class="menu-item logout" onclick="confirmLogout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="work-reports.html" class="nav-link">Work Reports</a>
+
+        <!-- ❌ INTENTIONALLY REMOVED -->
+        <!-- Verification must only open with ?id= -->
+
+        <a href="assignment.html" class="nav-link">Assign Work</a>
+        <a href="monitoring.html" class="nav-link">Monitor Work</a>
+        <a href="analytics.html" class="nav-link">Analytics</a>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="container">
+        <!-- Reports List Container (Shown when NO ID provided) -->
+        <div id="verificationList" class="container" style="display: none;">
+            <h2>Pending Verification</h2>
+            <div class="table-container">
+                <table class="reports-table">
+                    <thead>
+                        <tr>
+                            <th>Report ID</th>
+                            <th>Location</th>
+                            <th>Date</th>
+                            <th>Damage Type</th>
+                            <th>Severity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="verificationTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Verification Detail Container (Shown when ID provided) -->
+        <div id="verificationDetail" class="verification-container" style="display: none;">
+
+            <!-- LEFT: MEDIA -->
+            <div class="media-section">
+                <h2>Uploaded Media</h2>
+
+                <div class="media-preview">
+                    <img id="reportImage" class="image-preview" alt="Reported Damage" style="display:none;">
+                </div>
+
+                <h3>AI Damage Detection Result</h3>
+                <div class="ai-result" id="aiResult"></div>
+
+                <h3>Location</h3>
+                <div class="map-preview">
+                    <div id="map" style="width:100%; height:250px; border-radius:8px;"></div>
+                    <p id="mapCoords"></p>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: ACTIONS -->
+            <div class="action-panel">
+                <div class="panel-header-row"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Report Information</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="window.location.href='verification.html'">Back to
+                        List</button>
+                </div>
+                <div class="report-info" id="reportInfo"></div>
+
+                <h2>Verification</h2>
+                <div class="form-group">
+                    <label class="form-label">Reason for Decision</label>
+                    <textarea id="reasonInput" class="form-textarea" rows="4"
+                        placeholder="Enter reason for approval or rejection..."></textarea>
+                </div>
+
+                <div class="verification-actions">
+                    <button class="btn btn-success btn-large" onclick="approveReport()">
+                        ✓ Approve
+                    </button>
+                    <button class="btn btn-danger btn-large" onclick="rejectReport()">
+                        ✗ Reject
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="../shared/navigation.js"></script>
+    <script src="../shared/auth.js"></script>
+    <script src="../shared/modal.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script src="scripts/verification.js"></script>
+
+
+</body>
+
+</html>

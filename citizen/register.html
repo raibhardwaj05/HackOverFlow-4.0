@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Registration - Road Damage Detection</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+        }
+
+        .login-card {
+            background: #16213e;
+            padding: 2.5rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid #1f2940;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #aaa;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: #0d6efd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <h1>Create Account</h1>
+            <p>Join to report infrastructure issues</p>
+        </div>
+        <form onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input" required placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-input" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="password-container">
+                    <input type="password" class="form-input password-input" id="passwordInput" required
+                        placeholder="Create a password">
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility('passwordInput')">
+                        👁️
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+        </form>
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="login.html" style="color: #0d6efd; text-decoration: none; font-size: 0.9rem;">Already have an
+                account? Login</a>
+        </div>
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+
+    <script src="../shared/modal.js"></script>
+    <script src="../shared/auth.js"></script>
+    <script>
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const inputs = e.target.querySelectorAll('input');
+            const name = inputs[0].value;
+            const email = inputs[1].value;
+            // Password input is now inside a div, so selecting by ID is safer
+            const password = document.getElementById('passwordInput').value;
+
+            try {
+                await Auth.register(name, email, password, 'citizen');
+
+                // On success, show modal and redirect to login
+                if (window.showModal) {
+                    showModal('Registration Successful', 'Your account has been created. Please login.', 'success', () => {
+                        window.location.href = 'login.html';
+                    });
+                } else {
+                    alert('Registration Successful! Please login.');
+                    window.location.href = 'login.html';
+                }
+
+            } catch (error) {
+                if (window.showModal) showModal('Registration Failed', error.message, 'error');
+                else alert(error.message);
+            }
+        }
+    </script>
+</body>
+
+</html>

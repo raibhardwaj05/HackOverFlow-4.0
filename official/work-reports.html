@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Reports - Road Damage Detection</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="stylesheet" href="styles/work-reports.css">
+</head>
+
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h1>Work Assignment & Infrastructure Reports</h1>
+        <div class="profile-container">
+            <div class="profile-icon" onclick="toggleProfileMenu()">👤</div>
+            <div class="profile-menu" id="profileMenu">
+                <div class="menu-header">
+                    <span class="user-name">Loading...</span>
+                    <span class="user-role">Role</span>
+                </div>
+                <button class="menu-item logout" onclick="confirmLogout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="work-reports.html" class="nav-link active">Work Reports</a>
+        <a href="verification.html" class="nav-link">Verify Reports</a>
+        <a href="assignment.html" class="nav-link">Assign Work</a>
+        <a href="monitoring.html" class="nav-link">Monitor Work</a>
+        <a href="analytics.html" class="nav-link">Analytics</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container expanded-container">
+        <!-- KPI Cards -->
+        <div class="kpi-section">
+            <div class="grid grid-4">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Notices</div>
+                    <div class="kpi-value" id="totalNotices">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Pending Verify</div>
+                    <div class="kpi-value" id="pendingVerify">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Critical Work</div>
+                    <div class="kpi-value" id="criticalWork">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Active Diversions</div>
+                    <div class="kpi-value" id="activeDiversions">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Bar & Filters -->
+        <div class="filters-section">
+            <div class="action-header">
+                <h2>Official Work Notices</h2>
+                <button class="btn btn-primary" onclick="openCreateReportModal()">+ Create New Report</button>
+            </div>
+
+            <div class="filters-container">
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <select class="form-select" id="deptFilter" onchange="applyFilters()">
+                        <option value="">All Departments</option>
+                        <option value="Water Works">Water Works</option>
+                        <option value="Drainage">Drainage</option>
+                        <option value="Roads">Roads</option>
+                        <option value="Electricity">Electricity</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="statusFilter" onchange="applyFilters()">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="verified">Verified</option>
+                        <option value="assigned">Assigned</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date Range</label>
+                    <input type="date" class="form-input" id="dateFilter" onchange="applyFilters()">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-secondary" onclick="clearFilters()"
+                        style="margin-top: 1.8rem;">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="reports-section">
+            <div class="table-container">
+                <table class="reports-table">
+                    <thead>
+                        <tr>
+                            <th>Notice ID</th>
+                            <th>Location</th>
+                            <th>Department</th>
+                            <th>Work Type</th>
+                            <th>Date</th>
+                            <th>Traffic Div</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Side View Panel -->
+    <div id="sidePanel" class="side-panel">
+        <div class="side-panel-header">
+            <h2 id="panelTitle">Notice Details</h2>
+            <button class="close-panel-btn" onclick="closeSidePanel()">&times;</button>
+        </div>
+        <div class="side-panel-content" id="panelContent">
+            <!-- Details will be injected here -->
+        </div>
+        <div class="side-panel-footer" id="panelFooter">
+            <!-- Dynamic Actions -->
+        </div>
+    </div>
+    <div id="sidePanelOverlay" class="side-panel-overlay" onclick="closeSidePanel()"></div>
+
+    <!-- Create Report Modal -->
+    <div id="createReportModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title">Create Work Report</h2>
+                <button class="modal-close" onclick="closeCreateReportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Upload the Official Work Notice (PDF). The system will automatically extract details.</p>
+
+                <div class="upload-area" id="dropZone">
+                    <div class="upload-icon">📄</div>
+                    <h3>Drag & Drop PDF here</h3>
+                    <p>or click to browse</p>
+                    <input type="file" id="fileInput" accept=".pdf" style="display: none">
+                </div>
+
+                <div id="extractionStatus" class="extraction-status" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Analysis in progress... Extracting data from PDF...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared/navigation.js"></script>
+    <script src="../shared/modal.js"></script>
+    <script src="../shared/auth.js"></script>
+    <script src="scripts/work-reports.js"></script>
+</body>
+
+</html>

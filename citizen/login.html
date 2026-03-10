@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Login - Road Damage Detection</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+        }
+
+        .login-card {
+            background: #16213e;
+            padding: 2.5rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid #1f2940;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #aaa;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: #0d6efd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <h1>Citizen Login</h1>
+            <p>Sign in to report and track issues</p>
+        </div>
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label class="form-label">Email or Mobile</label>
+                <input type="text" class="form-input" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="password-container">
+                    <input type="password" class="form-input password-input" id="passwordInput" required
+                        placeholder="Enter password">
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility('passwordInput')">
+                        👁️
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+        </form>
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="register.html" style="color: #0d6efd; text-decoration: none; font-size: 0.9rem;">Create new
+                account</a>
+        </div>
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+
+    <script src="../shared/modal.js"></script>
+    <script src="../shared/auth.js"></script>
+    <script>
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+            } else {
+                input.type = "password";
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.querySelector('input[type="text"]').value;
+            const password = document.getElementById('passwordInput').value;
+
+            try {
+                await Auth.login(email, password, 'citizen');
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                // Use modal if available, fallback to alert
+                if (window.showModal) showModal('Login Failed', error.message);
+                else alert(error.message);
+            }
+        }
+    </script>
+</body>
+
+</html>

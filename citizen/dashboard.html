@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Dashboard - Road Damage Detection</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <link rel="stylesheet" href="styles/dashboard.css">
+</head>
+
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h1>Road Damage Detection</h1>
+        <div class="profile-container">
+            <div class="profile-icon" onclick="toggleProfileMenu()">👤</div>
+            <div class="profile-menu" id="profileMenu">
+                <div class="menu-header">
+                    <span class="user-name">Loading...</span>
+                    <span class="user-role">Role</span>
+                </div>
+                <button class="menu-item logout" onclick="confirmLogout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-link active">Dashboard</a>
+        <a href="report-damage.html" class="nav-link">Report Damage</a>
+        <a href="tracking.html" class="nav-link">Track Reports</a>
+        <a href="notifications.html" class="nav-link">Notifications</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Primary Action -->
+        <div class="primary-action">
+            <button class="btn btn-primary btn-large" onclick="window.location.href='report-damage.html'">
+                📸 Report New Issue
+            </button>
+        </div>
+
+        <!-- Status Summary -->
+        <div class="status-summary">
+            <h2>Your Reports Status</h2>
+            <div class="status-chips-container">
+                <span class="status-chip status-reported">
+                    Reported: <strong id="reportedCount">0</strong>
+                </span>
+
+                <span class="status-chip status-in-progress">
+                    In Progress: <strong id="inProgressCount">0</strong>
+                </span>
+
+                <span class="status-chip status-completed">
+                    Completed: <strong id="completedCount">0</strong>
+                </span>
+
+            </div>
+        </div>
+
+        <!-- Recent Reports -->
+        <div class="recent-reports">
+            <h2>Recent Reports</h2>
+            <div class="reports-list" id="recentReportsList">
+                <!-- Reports will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="tracking.html" class="btn btn-secondary">View All Reports</a>
+        </div>
+    </div>
+
+    <script src="../shared/navigation.js"></script>
+    <script src="../shared/modal.js"></script>
+    <script src="../shared/auth.js"></script>
+    <script src="scripts/dashboard.js"></script>
+</body>
+
+</html>

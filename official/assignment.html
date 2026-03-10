@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assign Work Order - Road Damage Detection</title>
+
+    <link rel="stylesheet" href="../shared/styles.css">
+    <link rel="stylesheet" href="styles/assignment.css">
+</head>
+
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h1>Assignment & Work Order</h1>
+        <div class="profile-container">
+            <div class="profile-icon" onclick="toggleProfileMenu()">👤</div>
+            <div class="profile-menu" id="profileMenu">
+                <div class="menu-header">
+                    <span class="user-name">Loading...</span>
+                    <span class="user-role">Role</span>
+                </div>
+                <button class="menu-item logout" onclick="confirmLogout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="work-reports.html" class="nav-link">Work Reports</a>
+        <a href="verification.html" class="nav-link">Verify Reports</a>
+        <a href="assignment.html" class="nav-link active">Assign Work</a>
+        <a href="monitoring.html" class="nav-link">Monitor Work</a>
+        <a href="analytics.html" class="nav-link">Analytics</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="assignment-container">
+
+            <!-- Report Details -->
+            <div class="report-details-section">
+                <h2>Approved Report Details</h2>
+                <div class="card">
+                    <div id="reportDetails"></div>
+                </div>
+            </div>
+
+            <!-- Assignment Form -->
+            <div class="assignment-form-section">
+                <h2>Assign Contractor</h2>
+                <div class="card">
+
+                    <div class="form-group">
+                        <label class="form-label">Select Contractor</label>
+                        <select class="form-select" id="contractorSelect">
+                            <option value="">-- Select Contractor --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Priority</label>
+                        <select class="form-select" id="prioritySelect">
+                            <option value="NORMAL">Normal</option>
+                            <option value="HIGH">High</option>
+                            <option value="URGENT">Urgent</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Expected Completion Date</label>
+                        <input type="date" class="form-input" id="completionDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Special Instructions</label>
+                        <textarea id="instructionsInput" class="form-textarea" rows="3"
+                            placeholder="Optional instructions for contractor..."></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Work Order Preview -->
+            <div class="work-order-preview-section">
+                <h2>Work Order Preview</h2>
+                <div class="card">
+                    <pre id="workOrderPreview" class="work-order-preview"></pre>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="assignment-actions">
+                <button class="btn btn-primary btn-large" onclick="assignWork()">
+                    Assign Work Order
+                </button>
+                <button class="btn btn-secondary" onclick="cancelAssignment()">
+                    Cancel
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="../shared/navigation.js"></script>
+    <script src="../shared/auth.js"></script>
+    <script src="../shared/modal.js"></script>
+    <script src="scripts/assignment.js"></script>
+
+</body>
+
+</html>
