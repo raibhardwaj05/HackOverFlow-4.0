@@ -2,6 +2,9 @@
 
 let allOfficerReports = [];
 let filteredReports = [];
+let currentPage = 1;
+const pageSize = 4;
+let sourceFilter = 'citizen';
 
 // Initialize dashboard when page loads
 document.addEventListener('DOMContentLoaded', async () => {
@@ -38,8 +41,9 @@ async function loadReports() {
  * Initialize dashboard
  */
 function initDashboard() {
+    updateSourceButtons();  // highlight Citizen button
+    applyFilters();         // apply citizen filter
     updateKPIs();
-    renderReportsTable();
 }
 
 /**
@@ -61,36 +65,88 @@ function updateKPIs() {
  * Apply filters
  */
 function applyFilters() {
-    // Note: Backend might not return 'sector' yet, so filtering might be limited
-    const sectorFilter = document.getElementById('sectorFilter').value;
+    const searchInput = document.getElementById('dashboardSearchInput');
+    const searchText = (searchInput ? searchInput.value : '').toLowerCase();
+    const issueTypeFilter = document.getElementById('issueTypeFilter').value;
     const severityFilter = document.getElementById('severityFilter').value;
     const statusFilter = document.getElementById('statusFilter').value;
+    const startDate = document.getElementById('startDateFilter').value;
+    const endDate = document.getElementById('endDateFilter').value;
 
     filteredReports = allOfficerReports.filter(report => {
-        // const sectorMatch = !sectorFilter || report.sector === sectorFilter; 
-        const sectorMatch = true; // Temporary disable until sector is in DB
+        // 1. Search Logic
+        const reportId = (report.id || '').toLowerCase();
+        const location = (report.location || '').toLowerCase();
+        const damageType = (report.damage_type || '').toLowerCase();
+        const searchMatch = !searchText ||
+            reportId.includes(searchText) ||
+            location.includes(searchText) ||
+            damageType.includes(searchText);
+
+        // 2. Issue Type Logic
+        const issueTypeMatch = !issueTypeFilter || (report.damage_type || '').toLowerCase().includes(issueTypeFilter);
+
+        // 3. Severity Logic
         const severityMatch = !severityFilter || (report.severity || '').toLowerCase() === severityFilter;
-        // Map frontend status filter to backend status
-        let statusMatch = true;
-        if (statusFilter) {
-            if (statusFilter === 'pending') statusMatch = report.status === 'submitted';
-            else statusMatch = report.status === statusFilter;
+
+        // 4. Status Logic
+        let statusMatch = !statusFilter;
+        if (statusFilter === 'verified') {
+            statusMatch = report.status === 'verified' || report.status === 'approved';
+        } else if (statusFilter) {
+            statusMatch = report.status === statusFilter;
         }
 
-        return sectorMatch && severityMatch && statusMatch;
+        // 4. Date Logic
+        let dateMatch = true;
+        const reportDate = new Date(report.created_at);
+        reportDate.setHours(0, 0, 0, 0);
+
+        if (startDate) {
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            if (reportDate < start) dateMatch = false;
+        }
+        if (endDate) {
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            if (reportDate > end) dateMatch = false;
+        }
+
+        // 5. Source Logic
+        let sourceMatch = true;
+        if (sourceFilter === 'citizen') {
+            sourceMatch = getReportSource(report) === 'citizen';
+        } else if (sourceFilter === 'dashcam') {
+            sourceMatch = getReportSource(report) === 'dashcam';
+        }
+
+        return searchMatch && issueTypeMatch && severityMatch && statusMatch && dateMatch && sourceMatch;
     });
 
+    currentPage = 1;
     renderReportsTable();
+}
+
+function getReportSource(report) {
+    return report.report_source || 'citizen';
 }
 
 /**
  * Clear all filters
  */
 function clearFilters() {
-    document.getElementById('sectorFilter').value = '';
+    const searchInput = document.getElementById('dashboardSearchInput');
+    if (searchInput) searchInput.value = '';
+    document.getElementById('issueTypeFilter').value = '';
     document.getElementById('severityFilter').value = '';
     document.getElementById('statusFilter').value = '';
+    document.getElementById('startDateFilter').value = '';
+    document.getElementById('endDateFilter').value = '';
+    sourceFilter = 'all';
     filteredReports = [...allOfficerReports];
+    currentPage = 1;
+    updateSourceButtons();
     renderReportsTable();
 }
 
@@ -99,70 +155,225 @@ function clearFilters() {
  */
 function renderReportsTable() {
     const tbody = document.getElementById('reportsTableBody');
+    const summary = document.getElementById('reportsSummary');
+    const pagination = document.getElementById('reportsPagination');
 
-    if (filteredReports.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No reports found matching the filters.</td></tr>';
+    if (!tbody) {
         return;
     }
 
-    tbody.innerHTML = filteredReports.map(report => {
-        const severity = report.severity || 'pending';
-        const severityClass = `severity-${severity.toLowerCase()}`;
+    if (filteredReports.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No reports found matching the filters.</td></tr>';
+        if (summary) {
+            summary.textContent = 'Showing 0 to 0 of 0 reports';
+        }
+        if (pagination) {
+            pagination.innerHTML = '';
+        }
+        return;
+    }
+
+    const total = filteredReports.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    if (currentPage > totalPages) {
+        currentPage = totalPages;
+    }
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, total);
+    const pageItems = filteredReports.slice(startIndex, endIndex);
+
+    tbody.innerHTML = pageItems.map(report => {
+        let severity = (report.severity || 'low').toLowerCase();
+
+        let detectionCount = null;
+        if (getReportSource(report) === 'dashcam' && report.location) {
+            const parts = report.location.split('|');
+            for (let i = 0; i < parts.length; i++) {
+                const part = parts[i].trim();
+                if (part.indexOf('detections:') === 0) {
+                    const value = part.substring('detections:'.length).trim();
+                    const n = parseInt(value, 10);
+                    if (!isNaN(n)) {
+                        detectionCount = n;
+                    }
+                }
+            }
+        }
+
+        if (detectionCount !== null) {
+            if (detectionCount >= 10) {
+                severity = 'critical';
+            } else if (detectionCount >= 5) {
+                severity = 'high';
+            } else if (detectionCount >= 2) {
+                severity = 'medium';
+            } else {
+                severity = 'low';
+            }
+        }
+
+        const severityPill = `pill-${severity}`;
         const severityText = severity.charAt(0).toUpperCase() + severity.slice(1);
 
+        let displayLocation = report.location || '';
+        if (getReportSource(report) === 'dashcam' && report.latitude != null && report.longitude != null) {
+            displayLocation = report.latitude + ', ' + report.longitude;
+        }
+
         // Status mapping
-        let statusClass = 'pending';
+        let statusPill = 'pill-pending';
         let statusText = report.status;
 
-        if (report.status === 'submitted') { statusClass = 'pending'; statusText = 'Pending Verification'; }
-        else if (report.status === 'verified') { statusClass = 'verified'; statusText = 'Verified'; }
-        else if (report.status === 'assigned') { statusClass = 'in-progress'; statusText = 'Assigned'; }
-        else if (report.status === 'in-progress') { statusClass = 'in-progress'; statusText = 'In Progress'; }
-        else if (report.status === 'resolved') { statusClass = 'completed'; statusText = 'Resolved'; }
-        else if (report.status === 'rejected') { statusClass = 'completed'; statusText = 'Rejected'; }
+        if (report.status === 'submitted') { statusPill = 'pill-pending'; statusText = 'Pending Review'; }
+        else if (report.status === 'verified' || report.status === 'approved') { statusPill = 'pill-progress'; statusText = 'Verified'; }
+        else if (report.status === 'assigned') { statusPill = 'pill-progress'; statusText = 'Assigned'; }
+        else if (report.status === 'in-progress') { statusPill = 'pill-progress'; statusText = 'In Progress'; }
+        else if (report.status === 'resolved') { statusPill = 'pill-resolved'; statusText = 'Resolved'; }
+        else if (report.status === 'rejected') { statusPill = 'pill-resolved'; statusText = 'Rejected'; }
 
-        // Mock date if missing (or format robustly)
-        // const dateStr = report.created_at ? new Date(report.created_at).toLocaleDateString() : 'N/A';
-        // The API returns 'image_url' which we can use for View
+        const dateStr = report.created_at ? new Date(report.created_at).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A';
+        const agoText = report.created_at ? formatTimeAgo(new Date(report.created_at)) : 'N/A';
 
         return `
             <tr>
-                <td>${report.id.substring(0, 8)}...</td>
-                <td>${report.location || 'Unknown'}</td>
-                <td>-</td> <!-- Sector -->
-                <td><span class="status-chip ${severityClass}">${severityText}</span></td>
-                <td><span class="status-chip status-${statusClass}">${statusText}</span></td>
-                <td>-</td> <!-- Date -->
+                <td style="font-weight: 600;" title="${report.id}">${report.id.split('-')[0].substring(0, 8)}</td>
+                <td>${displayLocation}</td>
+                <td>${report.damage_type || 'Road Damage'}</td>
+                <td><span class="pill ${statusPill}">${statusText}</span></td>
+                <td><span class="pill pill-${severity}">${severityText}</span></td>
+                <td style="color: var(--text-muted);">${dateStr}</td>
                 <td>
-                    <div class="table-actions">
-                        <button class="btn btn-primary" onclick="openPanel('${encodeURIComponent(JSON.stringify(report))}')">View</button>
+                    <div class="action-btns">
+                        <button class="action-btn" title="View Details" onclick="openPanel('${encodeURIComponent(JSON.stringify(report))}')">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
                         ${report.status === 'submitted' ? `
-                            <button class="btn btn-success" onclick="verifyReport('${report.id}')">Verify</button>
+                            <button class="action-btn" title="Verify" onclick="verifyReport('${report.id}')">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                            </button>
                         ` : ''}
-                        ${report.status === 'verified' ? `
-                            <button class="btn btn-secondary" onclick="assignReport('${report.id}')">Assign</button>
+                        ${(report.status === 'verified' || report.status === 'approved') ? `
+                            <button class="action-btn" title="Assign" onclick="assignReport('${report.id}')">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>
+                                </svg>
+                            </button>
                         ` : ''}
+                        ${(report.status === 'assigned' || report.status === 'in-progress') ? `
+                            <button class="action-btn" title="Monitor" onclick="monitorReport('${report.id}')">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><path d="M12 9v3l2 2"/><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                                </svg>
+                            </button>
+                        ` : ''}
+                        <!-- <button class="action-btn" title="Edit">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button> -->
                     </div>
                 </td>
             </tr>
         `;
     }).join('');
+
+    if (summary) {
+        summary.textContent = 'Showing ' + (startIndex + 1) + ' to ' + endIndex + ' of ' + total + ' reports';
+    }
+
+    if (pagination) {
+        if (totalPages <= 1) {
+            pagination.innerHTML = '';
+        } else {
+            let buttons = '';
+            const prevPage = currentPage - 1;
+            buttons += '<button class="page-btn' + (currentPage === 1 ? ' disabled' : '') + '" onclick="changePage(' + prevPage + ')"' + (currentPage === 1 ? ' disabled' : '') + '>&lt;</button>';
+            for (let i = 1; i <= totalPages; i++) {
+                buttons += '<button class="page-btn' + (i === currentPage ? ' active' : '') + '" onclick="changePage(' + i + ')">' + i + '</button>';
+            }
+            const nextPage = currentPage + 1;
+            buttons += '<button class="page-btn' + (currentPage === totalPages ? ' disabled' : '') + '" onclick="changePage(' + nextPage + ')"' + (currentPage === totalPages ? ' disabled' : '') + '>&gt;</button>';
+            pagination.innerHTML = buttons;
+        }
+    }
+}
+
+function changePage(page) {
+    const totalPages = Math.max(1, Math.ceil(filteredReports.length / pageSize));
+    if (page < 1 || page > totalPages) {
+        return;
+    }
+    currentPage = page;
+    renderReportsTable();
+}
+
+function setSourceFilter(source) {
+    sourceFilter = source;   // always set selected source
+    currentPage = 1;
+    updateSourceButtons();
+    applyFilters();
+}
+
+function updateSourceButtons() {
+    const citizenBtn = document.getElementById('sourceCitizenBtn');
+    const dashcamBtn = document.getElementById('sourceDashcamBtn');
+    if (!citizenBtn || !dashcamBtn) {
+        return;
+    }
+    citizenBtn.classList.remove('active');
+    dashcamBtn.classList.remove('active');
+
+    if (sourceFilter === 'citizen') {
+        citizenBtn.classList.add('active');
+    } else if (sourceFilter === 'dashcam') {
+        dashcamBtn.classList.add('active');
+    }
+}
+
+/**
+ * Helper to format time ago
+ */
+function formatTimeAgo(date) {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInDays > 0) return `${diffInDays}d ago`;
+    if (diffInHours > 0) return `${diffInHours}h ago`;
+    if (diffInMinutes > 0) return `${diffInMinutes}m ago`;
+    return 'Just now';
 }
 
 // Expose functions to window
 window.applyFilters = applyFilters;
 window.clearFilters = clearFilters;
+window.changePage = changePage;
+window.setSourceFilter = setSourceFilter;
 window.viewReport = (id) => {
     const report = allOfficerReports.find(r => r.id === id);
     if (report) openPanel(encodeURIComponent(JSON.stringify(report)));
 };
 
 window.verifyReport = (id) => {
-    window.location.href = `verification.html?id=${id}`;
+    const report = allOfficerReports.find(r => r.id === id);
+    const page = (report && getReportSource(report) === 'dashcam') ? 'dashcam-verification.html' : 'verification.html';
+    window.location.href = `${page}?id=${id}`;
 };
 window.assignReport = (id) => {
-    sessionStorage.setItem('selectedReportId', id);
-    window.location.href = 'assignment.html';
+    const report = allOfficerReports.find(r => r.id === id);
+    const page = (report && getReportSource(report) === 'dashcam') ? 'dashcam-assignment.html' : 'assignment.html';
+    window.location.href = `${page}?id=${id}`;
+};
+window.monitorReport = (id) => {
+    const report = allOfficerReports.find(r => r.id === id);
+    const page = (report && getReportSource(report) === 'dashcam') ? 'dashcam-monitoring.html' : 'monitoring.html';
+    window.location.href = `${page}?id=${id}`;
 };
 
 // --- Slide Panel Logic ---
@@ -220,3 +431,28 @@ function loadPanelMap(lat, lng) {
 // Expose open/close to window for HTML onclicks
 window.openPanel = openPanel;
 window.closePanel = closePanel;
+
+/**
+ * Toggle profile menu visibility
+ */
+window.toggleProfileMenu = function () {
+    const menu = document.getElementById('profileMenu');
+    if (menu) menu.classList.toggle('active');
+};
+
+/**
+ * Export dashboard data (Placeholder)
+ */
+window.exportData = function () {
+    alert("Exporting data as CSV...");
+    // Logic for actual export can go here
+};
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    const profileSection = document.querySelector('.profile-section');
+    const menu = document.getElementById('profileMenu');
+    if (profileSection && !profileSection.contains(e.target) && menu) {
+        menu.classList.remove('active');
+    }
+});

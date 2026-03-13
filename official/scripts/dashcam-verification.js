@@ -103,11 +103,43 @@ function loadMap(lat, lng, detectionCount) {
 // POPULATE UI
 // =====================================================
 async function populateReport(report) {
+
+    // DASHCAM METADATA (first/last image + detections)
+    let isDashcam = false;
+    let detectionCount = null;
+    let lastImageFilename = null;
+
+    if (getReportSource(report) === 'dashcam') {
+        isDashcam = true;
+    } else if (report.image_url && report.image_url.indexOf('dashcam_first_') !== -1) {
+        isDashcam = true;
+    }
+
+    if (isDashcam && report.location) {
+        const parts = report.location.split('|');
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i].trim();
+            if (part.indexOf('detections:') === 0) {
+                const value = part.substring('detections:'.length).trim();
+                const n = parseInt(value, 10);
+                if (!isNaN(n)) {
+                    detectionCount = n;
+                }
+            } else if (part.indexOf('last_image:') === 0) {
+                lastImageFilename = part.substring('last_image:'.length).trim();
+            }
+        }
+    }
+
     // IMAGE (SECURE FETCH)
     const img = document.getElementById('reportImage');
+    const lastImg = document.getElementById('reportImageLast');
 
     if (img) {
         img.style.display = 'none';
+    }
+    if (lastImg) {
+        lastImg.style.display = 'none';
     }
 
     if (report.image_url && img) {
@@ -120,6 +152,20 @@ async function populateReport(report) {
             }
         } catch (err) {
             console.error('Image load failed');
+        }
+    }
+
+    if (isDashcam && lastImg && lastImageFilename) {
+        try {
+            const lastUrl = `/api/files/images/${lastImageFilename}`;
+            const lastResponse = await Auth.fetchWithAuth(lastUrl);
+            if (lastResponse.ok) {
+                const lastBlob = await lastResponse.blob();
+                lastImg.src = URL.createObjectURL(lastBlob);
+                lastImg.style.display = 'block';
+            }
+        } catch (err) {
+            console.error('Last image load failed');
         }
     }
 
@@ -144,9 +190,19 @@ async function populateReport(report) {
         aiResultEl.innerHTML = aiHtml;
     }
 
+    if (isDashcam) {
+        const aiBelow = document.getElementById('aiResultBelowMap');
+        if (aiBelow) {
+            aiBelow.innerHTML = aiHtml;
+            if (aiResultEl) {
+                aiResultEl.innerHTML = '';
+            }
+        }
+    }
+
     // LOCATION + MAP
     if (report.latitude != null && report.longitude != null) {
-        loadMap(report.latitude, report.longitude, 1);
+        loadMap(report.latitude, report.longitude, detectionCount);
     } else {
         document.getElementById('mapCoords').textContent =
             'Location not available';
@@ -190,8 +246,8 @@ async function submitVerification(status) {
         showModal('Success', `Report ${status} successfully`, 'success');
 
         setTimeout(() => {
-            // Redirect back to verification list
-            window.location.href = 'verification.html';
+            // Redirect back to dashboard
+            window.location.href = 'dashboard.html';
         }, 1500);
 
     } catch (error) {
@@ -206,6 +262,10 @@ function approveReport() {
 
 function rejectReport() {
     submitVerification('rejected');
+}
+
+function getReportSource(report) {
+    return report.report_source || 'citizen';
 }
 
 // EXPOSE

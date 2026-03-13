@@ -2,17 +2,46 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Analytics & Transparency - Road Damage Detection</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Contractor - Safe Streets</title>
     <link rel="stylesheet" href="../shared/styles.css">
     <link rel="stylesheet" href="styles/dashboard.css">
-    <link rel="stylesheet" href="styles/analytics.css">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .container {
+            padding-top: 1rem;
+        }
+
+        .form-label {
+            color: var(--text-main, #1e293b) !important;
+        }
+
+        .form-select {
+            background: #f8fafc !important;
+            border: 1px solid var(--border, #e2e8f0) !important;
+            color: var(--text-main, #1e293b) !important;
+        }
+    </style>
 </head>
 
 <body>
-
     <!-- Top Bar / Header -->
     <header class="header">
         <div class="logo-area">
@@ -21,13 +50,13 @@
                     <path d="M4 11V1m16 10V1M12 23V1M4 23v-7m16 7v-7" />
                 </svg>
             </div>
-            <span class="logo-text">SafeStreets</span>
+            <span class="logo-text">SafeStreets <span class="accent">Officer</span></span>
         </div>
 
         <nav class="nav-links">
             <a href="dashboard.html" class="nav-item">Dashboard</a>
             <a href="work-reports.html" class="nav-item">Reports</a>
-            <a href="analytics.html" class="nav-item active">Analytics</a>
+            <a href="analytics.html" class="nav-item">Analytics</a>
         </nav>
 
         <div class="header-right">
@@ -58,71 +87,35 @@
     </header>
 
     <div class="container">
-
-        <!-- Filters -->
-        <div class="analytics-filters">
-            <h2>Filters</h2>
-            <div class="filters-grid">
+        <div class="form-container">
+            <h2 class="form-title">Contractor Details</h2>
+            <form id="addContractorForm">
                 <div class="form-group">
-                    <label class="form-label">Time Period</label>
-                    <select class="form-select" id="timeFilter">
-                        <option value="30">Last Month</option>
-                        <option value="90" selected>Last 3 Months</option>
-                        <option value="180">Last 6 Months</option>
-                        <option value="365">Last Year</option>
-                    </select>
+                    <label class="form-label">Contractor Name</label>
+                    <input type="text" id="contractorName" class="form-select" placeholder="e.g. ABC Road Works"
+                        required>
                 </div>
-
                 <div class="form-group">
-                    <label class="form-label">Sector</label>
-                    <select class="form-select" id="sectorFilter">
-                        <option value="">All Sectors</option>
-                    </select>
+                    <label class="form-label">Specialization</label>
+                    <input type="text" id="specialization" class="form-select" placeholder="e.g. Potholes, Resurfacing">
                 </div>
-
                 <div class="form-group">
-                    <button class="btn btn-secondary" onclick="exportReport()">Export Report</button>
+                    <label class="form-label">Contact Info</label>
+                    <input type="text" id="contact" class="form-select" placeholder="Email or Phone">
                 </div>
-            </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Add Contractor</button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1;"
+                        onclick="window.history.back()">Cancel</button>
+                </div>
+            </form>
         </div>
-
-        <!-- Summary Stats -->
-        <div class="analytics-section">
-            <h2>Summary Statistics</h2>
-            <div class="stats-grid" id="summaryStats"></div>
-        </div>
-
-        <!-- Repair Time -->
-        <div class="analytics-section">
-            <h2>Average Repair Time (Days)</h2>
-            <div class="stat-card">
-                <div class="chart-bars" id="repairTimeChart"></div>
-            </div>
-        </div>
-
-        <!-- Contractor Performance -->
-        <div class="analytics-section">
-            <h2>Contractor Performance</h2>
-            <div class="stat-card">
-                <div id="contractorPerformance"></div>
-            </div>
-        </div>
-
-        <!-- Road Health Index -->
-        <div class="analytics-section">
-            <h2>Road Health Index by Sector</h2>
-            <div class="stat-card">
-                <div class="health-index-grid" id="roadHealthGrid"></div>
-            </div>
-        </div>
-
     </div>
 
     <script src="../shared/navigation.js"></script>
     <script src="../shared/auth.js"></script>
     <script src="../shared/modal.js"></script>
-    <script src="scripts/analytics.js"></script>
-
+    <script src="scripts/add-contractor.js"></script>
 </body>
 
 </html>

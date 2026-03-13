@@ -71,12 +71,11 @@
                 <h2>Uploaded Media</h2>
 
                 <div class="media-preview">
+                    <h3>First Image</h3>
                     <img id="reportImage" class="image-preview" alt="Reported Damage" style="display:none;">
+                    <h3>Last Image</h3>
+                    <img id="reportImageLast" class="image-preview" alt="Last Detected Damage" style="display:none;">
                 </div>
-
-                <h3>AI Damage Detection Result</h3>
-                <div class="ai-result" id="aiResult"></div>
-
             </div>
 
             <!-- RIGHT: ACTIONS -->
@@ -84,7 +83,7 @@
                 <div class="panel-header-row"
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h2>Report Information</h2>
-                    <button class="btn btn-secondary btn-sm" onclick="window.location.href='verification.html'">Back to
+                    <button class="btn btn-secondary btn-sm" onclick="window.location.href='dashboard.html'">Back to
                         Dashboard</button>
                 </div>
                 <div class="report-info" id="reportInfo"></div>
@@ -95,7 +94,8 @@
                     <p id="mapCoords"></p>
                 </div>
 
-                <!-- <div class="ai-result" id="aiResultBelowMap"></div> -->
+                <h3>AI Damage Detection Result</h3>
+                <div class="ai-result" id="aiResultBelowMap"></div>
 
                 <h2>Verification</h2>
                 <div class="stat-card">
@@ -126,7 +126,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <script src="scripts/verification.js"></script>
+    <script src="scripts/dashcam-verification.js"></script>
 
 
 </body>

@@ -16,7 +16,11 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(20), nullable=False)  # citizen | official
     department = db.Column(db.String(50), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        index=True
+    )
 
     # -------------------------
     # Password helpers
@@ -26,6 +30,26 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+
+# =====================================================
+# DEVICE MODEL (DASHCAM DEVICES)
+# =====================================================
+class Device(db.Model):
+    __tablename__ = 'devices'
+    __bind_key__ = 'infra_auth_db'   # same DB as users
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+
+    vehicle_no = db.Column(db.String(20), nullable=False)
+
+    device_id = db.Column(db.String(50), unique=True, nullable=False, index=True)
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        index=True
+    )
 
 
 # =====================================================
@@ -35,39 +59,41 @@ class DamageReport(db.Model):
     __tablename__ = 'damage_reports'
     __bind_key__ = 'infra_damage_db'
 
-    # Primary Key
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
 
-    # Citizen reference (cross-DB, no FK)
-    citizen_id = db.Column(db.String(36), nullable=False)
+    citizen_id = db.Column(db.String(36), nullable=True)
 
-    # Image evidence (CRITICAL for verification page)
+    device_id = db.Column(db.String(50), nullable=True)
+
+    report_source = db.Column(db.String(20), nullable=False, default="citizen") 
+    # citizen | dashcam
+
     image_path = db.Column(db.String(255), nullable=False)
 
-    # Location details
     location = db.Column(db.String(255))
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
 
-    # ML inference output
     detected_damage_type = db.Column(db.String(50))
     confidence_score = db.Column(db.Float)
 
-    # Status lifecycle
     status = db.Column(
         db.String(20),
         default='submitted'
-    )  # submitted → verified → assigned → resolved
+    )
 
     severity = db.Column(
         db.String(20),
         default='pending'
-    )  # low | medium | high | critical
+    )
 
-    # Verification
     verified_by = db.Column(db.String(36), nullable=True)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        index=True
+    )
 
 
 # =====================================================
@@ -92,7 +118,11 @@ class WorkReport(db.Model):
 
     pdf_filename = db.Column(db.String(255)) 
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        index=True
+    )
 
 
 # =====================================================

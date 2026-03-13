@@ -1,4 +1,4 @@
-// Work Monitoring Screen JavaScript for Citizen Reports
+// Work Monitoring Screen JavaScript for Dashcam Reports
 
 // Data fetched from API
 let workOrdersData = [];
@@ -35,12 +35,13 @@ async function initMonitoring() {
                 currentReport.persistedDescription = savedState.description;
                 currentReport.persistedOfficer = savedState.officer;
                 currentReport.persistedAfterPhoto = savedState.afterPhoto;
+                currentReport.persistedAfterPhotoLast = savedState.afterPhotoLast;
             }
         }
 
         loadWorkDetails();
         
-        // If persisted, show the success summary directly
+        // If persisted, show resolution summary
         if (savedState) {
             showResolutionSummary();
         }
@@ -73,10 +74,14 @@ function showResolutionSummary() {
             </div>
         `;
         
-        // Also update the After image if saved
+        // Also update the After images if saved
         const afterImg = document.getElementById('afterPhoto');
+        const afterImgLast = document.getElementById('afterPhotoLast');
         if (afterImg && currentReport.persistedAfterPhoto) {
             afterImg.src = currentReport.persistedAfterPhoto;
+        }
+        if (afterImgLast && currentReport.persistedAfterPhotoLast) {
+            afterImgLast.src = currentReport.persistedAfterPhotoLast;
         }
     }
 }
@@ -178,27 +183,21 @@ function renderTimeline() {
             hour12: true 
         });
     };
-
-    const timelineData = labels.map((item, idx) => {
+    const timelineData = labels.map((label, idx) => {
         let dateDisplay = 'Pending';
         if (idx <= currentStageIndex) {
             let timestamp = currentReport.created_at; 
 
-            if (idx === 1) {
-                timestamp = currentReport.verified_at || currentReport.created_at;
-            } else if (idx === 2) {
-                timestamp = currentReport.assigned_at || (currentWork ? currentWork.assignedDate : currentReport.created_at);
-            } else if (idx === 3) {
-                timestamp = currentReport.in_progress_at || (currentWork ? currentWork.assignedDate : currentReport.created_at);
-            } else if (idx === 4) {
-                timestamp = currentReport.resolved_at || currentReport.created_at;
-            }
+            if (idx === 1) timestamp = currentReport.verified_at || currentReport.created_at;
+            else if (idx === 2) timestamp = currentReport.assigned_at || currentReport.created_at;
+            else if (idx === 3) timestamp = currentReport.assigned_at || currentReport.created_at;
+            else if (idx === 4) timestamp = currentReport.resolved_at || currentReport.created_at;
 
             dateDisplay = formatDate(timestamp);
         }
 
         return {
-            step: item,
+            label, 
             date: dateDisplay,
             completed: idx <= currentStageIndex
         };
@@ -221,7 +220,7 @@ function renderTimeline() {
                     ${iconHtml}
                 </div>
                 <div class="timeline-content-text">
-                    <div class="timeline-title">${item.step}</div>
+                    <div class="timeline-title">${item.label}</div>
                     <div class="timeline-desc">${item.date}</div>
                 </div>
             </div>
@@ -230,7 +229,7 @@ function renderTimeline() {
 }
 
 /**
- * Render status indicator
+ * Render status indicator card
  */
 function renderStatusIndicator() {
     const indicator = document.getElementById('workStatusIndicator');
@@ -268,18 +267,22 @@ function renderStatusIndicator() {
         const statusClass = ['in-progress', 'assigned'].includes(currentReport.status) ? 'in-progress' :
             (currentReport.status === 'resolved' ? 'completed' : 'pending');
 
+        const displayLocation = (currentReport.latitude != null && currentReport.longitude != null) 
+            ? `${currentReport.latitude}, ${currentReport.longitude}`
+            : (currentReport.location ? currentReport.location.split('|')[0] : 'N/A');
+
         indicator.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
                 <div>
                     <h3 style="margin: 0; color: #1e293b; font-size: 1.2rem;">Report #<span title="${reportIdFull}">${reportIdDisplay}</span></h3>
-                    <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.9rem;">Filed locally</p>
+                    <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.9rem;">Filed via Dashcam</p>
                 </div>
                 <div class="status-badge ${statusClass}" style="margin: 0;">${statusText}</div>
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; text-align: left;">
                 <div>
                     <span style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">Location</span>
-                    <strong style="color: #1e293b; font-size: 1.05rem;">${currentReport.location || 'N/A'}</strong>
+                    <strong style="color: #1e293b; font-size: 1.05rem;">${displayLocation}</strong>
                 </div>
             </div>
         `;
@@ -291,43 +294,71 @@ function renderStatusIndicator() {
  */
 async function renderPhotos() {
     const beforeImg = document.getElementById('beforePhoto');
+    const beforeImgLast = document.getElementById('beforePhotoLast');
     const afterImg = document.getElementById('afterPhoto');
+    const afterImgLast = document.getElementById('afterPhotoLast');
 
     if (!beforeImg || !afterImg) return;
 
-    // 1. Try to get the "Before" image from the currentReport object
-    if (currentReport && currentReport.image_url) {
-        try {
-            const response = await Auth.fetchWithAuth(currentReport.image_url);
-            if (response.ok) {
-                const blob = await response.blob();
-                beforeImg.src = URL.createObjectURL(blob);
-                beforeImg.style.display = 'block';
-            } else {
+    // 1. Handle Before Photos (Sequence)
+    if (currentReport && currentReport.report_source === 'dashcam') {
+        // Securely fetch First Image
+        if (currentReport.image_url) {
+            try {
+                const response = await Auth.fetchWithAuth(currentReport.image_url);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    beforeImg.src = URL.createObjectURL(blob);
+                    beforeImg.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Secure image fetch failed', err);
                 beforeImg.src = currentReport.image_url;
             }
-        } catch (err) {
-            console.error('Before Image load failed', err);
-            beforeImg.src = 'https://via.placeholder.com/600x400/f1f5f9/94a3b8?text=Image+Load+Failed';
+        }
+
+        // Securely fetch Last Image
+        if (currentReport.location && currentReport.location.includes('last_image:')) {
+            const parts = currentReport.location.split('|');
+            const lastImagePart = parts.find(p => p.includes('last_image:'));
+            if (lastImagePart) {
+                const filename = lastImagePart.split(':')[1].trim();
+                const lastImageUrl = `/api/files/images/${filename}`;
+                try {
+                    const response = await Auth.fetchWithAuth(lastImageUrl);
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        if (beforeImgLast) {
+                            beforeImgLast.src = URL.createObjectURL(blob);
+                            beforeImgLast.style.display = 'block';
+                        }
+                    }
+                } catch (err) {
+                    console.error('Secure last image fetch failed', err);
+                    if (beforeImgLast) beforeImgLast.src = lastImageUrl;
+                }
+            }
+        } else if (beforeImgLast) {
+            beforeImgLast.src = beforeImg.src;
+        }
+    } else {
+        // Standard report handling
+        if (currentReport && currentReport.image_url) {
+            beforeImg.src = currentReport.image_url;
         }
     }
-    // Fallback to currentWork data if currentReport isn't populated
-    else if (currentWork && currentWork.beforePhoto) {
-        beforeImg.src = currentWork.beforePhoto;
-    }
-    // Final fallback: Placeholder
-    else {
-        beforeImg.src = 'https://via.placeholder.com/600x400/f1f5f9/94a3b8?text=Original+Report+Photo+Missing';
-    }
 
-    // 2. Handle the "After" image (Repair documentation)
-    // If not persisted, check currentWork
+    // 2. Handle After Photos (Initial states)
     if (currentReport && currentReport.persistedAfterPhoto) {
         afterImg.src = currentReport.persistedAfterPhoto;
     } else if (currentWork && currentWork.afterPhoto) {
         afterImg.src = currentWork.afterPhoto;
-    } else {
-        afterImg.src = 'https://via.placeholder.com/600x400/f1f5f9/94a3b8?text=Repair+Photo+Pending';
+    }
+
+    if (currentReport && currentReport.persistedAfterPhotoLast) {
+        if (afterImgLast) afterImgLast.src = currentReport.persistedAfterPhotoLast;
+    } else if (currentWork && currentWork.afterPhotoLast) {
+        if (afterImgLast) afterImgLast.src = currentWork.afterPhotoLast;
     }
 }
 
@@ -388,7 +419,7 @@ function renderActiveWorks() {
  * Select work from grid
  */
 function selectWork(workId) {
-    window.location.href = `monitoring.html?id=${workId}`;
+    window.location.href = `dashcam-monitoring.html?id=${workId}`;
 }
 
 /**
@@ -404,10 +435,13 @@ function markCompleted() {
     });
 }
 
+// Track uploaded images for resolution
+const uploadedImages = { first: false, last: false };
+
 /**
  * Handle "After" image upload preview
  */
-function handleAfterImageUpload(event) {
+function handleAfterImageUpload(event, type) {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -419,27 +453,33 @@ function handleAfterImageUpload(event) {
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        const afterImg = document.getElementById('afterPhoto');
+        const afterImgId = type === 'first' ? 'afterPhoto' : 'afterPhotoLast';
+        const afterImg = document.getElementById(afterImgId);
         if (afterImg) {
             const imageData = e.target.result;
             afterImg.src = imageData;
+            uploadedImages[type] = true;
             
-            // Store temporarily in currentReport for saving later
-            if (!currentReport) currentReport = {};
-            currentReport.tempAfterPhoto = imageData;
+            // Store temporarily
+            if (!currentReport) currentReport = {}; // Safety
+            if (type === 'first') currentReport.tempAfterPhoto = imageData;
+            else currentReport.tempAfterPhotoLast = imageData;
             
-            // Enable verification checkbox
-            const checkbox = document.getElementById('completionCheckbox');
-            const wrapper = document.getElementById('checkboxWrapper');
-            const helper = document.getElementById('uploadHelperText');
-            
-            if (checkbox && wrapper) {
-                checkbox.disabled = false;
-                wrapper.classList.remove('disabled');
-                if (helper) helper.style.display = 'none';
+            // Check if both are uploaded
+            if (uploadedImages.first && uploadedImages.last) {
+                const checkbox = document.getElementById('completionCheckbox');
+                const wrapper = document.getElementById('checkboxWrapper');
+                const helper = document.getElementById('uploadHelperText');
+                
+                if (checkbox && wrapper) {
+                    checkbox.disabled = false;
+                    wrapper.classList.remove('disabled');
+                    if (helper) helper.style.display = 'none';
+                }
+                showAlert('Success', 'Repair photos uploaded. You can now verify the report.', 'success');
+            } else {
+                showAlert('Step Saved', `Uploaded ${type} image. Please upload the other image to enable verification.`, 'info');
             }
-            
-            showAlert('Success', 'Repair photo uploaded. You can now verify the report.', 'success');
         }
     };
     reader.readAsDataURL(file);
@@ -478,14 +518,19 @@ async function submitFinalReport() {
         if (currentReport) {
             currentReport.status = 'resolved';
             currentReport.resolved_at = resolvedAt;
+            currentReport.persistedDescription = description;
+            currentReport.persistedOfficer = officerName;
+            currentReport.persistedAfterPhoto = currentReport.tempAfterPhoto || null;
+            currentReport.persistedAfterPhotoLast = currentReport.tempAfterPhotoLast || null;
         }
         
-        // Save to IndexedDB for persistence (resolves QuotaExceededError)
+        // Save to IndexedDB (resolves QuotaExceededError for large images)
         const stateToSave = {
             description: description,
             officer: officerName,
             resolvedAt: resolvedAt,
-            afterPhoto: (currentReport && currentReport.tempAfterPhoto) || null
+            afterPhoto: (currentReport && currentReport.tempAfterPhoto) || null,
+            afterPhotoLast: (currentReport && currentReport.tempAfterPhotoLast) || null
         };
         await ReportStorage.save(reportId, stateToSave);
         
@@ -494,11 +539,6 @@ async function submitFinalReport() {
         renderStatusIndicator();
         
         // Show success summary
-        if (currentReport) {
-            currentReport.persistedDescription = description;
-            currentReport.persistedOfficer = officerName;
-            currentReport.persistedAfterPhoto = stateToSave.afterPhoto;
-        }
         showResolutionSummary();
         
         showAlert('Success', 'Report has been marked as completed!', 'success');

@@ -6,15 +6,15 @@
 
 .analytics-filters h2 {
     margin-bottom: 1rem;
-    color: #fff;
+    color: #000000;
 }
 
 .filters-grid {
-    background: #1a1a2e;
+    background: #c9c9ce70;
     padding: 1.5rem;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    border: 1px solid #16213e;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    /* border: 1px solid #16213e; */
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
@@ -27,7 +27,7 @@
 
 .analytics-section h2 {
     margin-bottom: 1rem;
-    color: #fff;
+    color: #000000;
 }
 
 .heatmap-placeholder,
@@ -42,7 +42,7 @@
     align-items: center;
     justify-content: center;
     border: 1px solid #16213e;
-    color: #fff;
+    color: #000000;
 }
 
 .placeholder-icon {
@@ -51,7 +51,7 @@
 }
 
 .placeholder-note {
-    color: #999;
+    color: #000000;
     font-size: 0.9rem;
     font-style: italic;
     margin-top: 0.5rem;
@@ -91,7 +91,7 @@
     justify-content: space-around;
     gap: 1rem;
     font-size: 0.9rem;
-    color: #999;
+    color: #000000;
 }
 
 .performance-list {
@@ -109,7 +109,7 @@
 .contractor-name {
     min-width: 180px;
     font-weight: 500;
-    color: #fff;
+    color: #000000;
 }
 
 .performance-bar {
@@ -141,7 +141,7 @@
 }
 
 .health-index-card {
-    background: #1a1a2e;
+    background: #1a1c2e;
     padding: 2rem;
     border-radius: 12px;
     text-align: center;
@@ -164,7 +164,7 @@
 .health-index-label {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #fff;
+    color: #000000;
     margin-bottom: 0.5rem;
 }
 
@@ -182,10 +182,10 @@
 }
 
 .stat-card {
-    background: #1a1a2e;
+    background: #c9c9ce70;
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     border: 1px solid #16213e;
     text-align: center;
     transition: all 0.3s ease;

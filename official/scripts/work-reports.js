@@ -67,32 +67,32 @@ function renderTable() {
 
     if (currentReports.length === 0) {
         tbody.innerHTML = `
-            <tr>
-                <td colspan="9" style="text-align:center;padding:2rem;">
-                    No notices found
-                </td>
-            </tr>`;
+                <tr>
+                    <td colspan="9" style="text-align:center;padding:2rem;">
+                        No notices found
+                    </td>
+                </tr>`;
         return;
     }
 
     tbody.innerHTML = currentReports.map(report => `
-        <tr>
-            <td><strong>${report.notice_id || '-'}</strong></td>
-            <td>${report.location || '-'}</td>
-            <td>${report.department || '-'}</td>
-            <td>${report.work_type || '-'}</td>
-            <td>${new Date(report.created_at).toLocaleDateString()}</td>
-            <td>-</td>        <!-- Traffic Div (not applicable) -->
-            <td>-</td>        <!-- Severity (not applicable) -->
-            <td>${report.status}</td>
-            <td>
-                <button class="btn btn-primary btn-sm"
-                    onclick="openSidePanel('${report.id}')">
-                    View
-                </button>
-            </td>
-        </tr>
-    `).join('');
+            <tr>
+                <td title="${report.notice_id || '-'}"><strong>${report.notice_id ? report.notice_id.split('-')[0].substring(0, 8) : '-'}</strong></td>
+                <td>${report.location || '-'}</td>
+                <td>${report.department || '-'}</td>
+                <td>${report.work_type || '-'}</td>
+                <td>${new Date(report.created_at).toLocaleDateString()}</td>
+                <td>-</td>        <!-- Traffic Div (not applicable) -->
+                <td>-</td>        <!-- Severity (not applicable) -->
+                <td>${report.status}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm"
+                        onclick="openSidePanel('${report.id}')">
+                        View
+                    </button>
+                </td>
+            </tr>
+        `).join('');
 }
 
 
@@ -102,11 +102,22 @@ function renderTable() {
 function applyFilters() {
     const dept = document.getElementById('deptFilter').value;
     const status = document.getElementById('statusFilter').value;
+    const startDate = document.getElementById('startDateFilter').value;
+    const endDate = document.getElementById('endDateFilter').value;
 
-    currentReports = workReports.filter(r =>
-        (!dept || r.department === dept) &&
-        (!status || r.status === status)
-    );
+    currentReports = workReports.filter(r => {
+        const matchesDept = !dept || r.department === dept;
+        const matchesStatus = !status || r.status === status;
+
+        let matchesDate = true;
+        if (r.created_at) {
+            const reportDate = new Date(r.created_at).toISOString().split('T')[0];
+            if (startDate && reportDate < startDate) matchesDate = false;
+            if (endDate && reportDate > endDate) matchesDate = false;
+        }
+
+        return matchesDept && matchesStatus && matchesDate;
+    });
 
     renderTable();
 }
@@ -114,6 +125,8 @@ function applyFilters() {
 function clearFilters() {
     document.getElementById('deptFilter').value = '';
     document.getElementById('statusFilter').value = '';
+    document.getElementById('startDateFilter').value = '';
+    document.getElementById('endDateFilter').value = '';
     currentReports = [...workReports];
     renderTable();
 }
@@ -122,7 +135,17 @@ function clearFilters() {
 // NAVIGATION (CRITICAL FIX)
 // =====================================================
 function goToVerification(reportId) {
-    window.location.href = `verification.html?id=${reportId}`;
+    const report = workReports.find(r => r.id === reportId);
+    let isDashcam = false;
+    if (report) {
+        if (report.report_source === 'dashcam') {
+            isDashcam = true;
+        } else if (report.image_url && report.image_url.includes('dashcam_first_')) {
+            isDashcam = true;
+        }
+    }
+    const page = isDashcam ? 'dashcam-verification.html' : 'verification.html';
+    window.location.href = `${page}?id=${reportId}`;
 }
 
 // =====================================================
@@ -133,24 +156,24 @@ function openSidePanel(reportId) {
     if (!report) return;
 
     document.getElementById('panelContent').innerHTML = `
-        <p><strong>Notice ID:</strong> ${report.notice_id || report.id}</p>
-        <p><strong>Department:</strong> ${report.department}</p>
-        <p><strong>Work Type:</strong> ${report.work_type}</p>
-        <p><strong>Location:</strong> ${report.location}</p>
-        <p><strong>Executing Agency:</strong> ${report.executing_agency || '-'}</p>
-        <p><strong>Contractor Contact:</strong> ${report.contractor_contact || '-'}</p>
-        <p><strong>Status:</strong> ${report.status}</p>
-    `;
+            <p><strong>Notice ID:</strong> ${report.notice_id || report.id}</p>
+            <p><strong>Department:</strong> ${report.department}</p>
+            <p><strong>Work Type:</strong> ${report.work_type}</p>
+            <p><strong>Location:</strong> ${report.location}</p>
+            <p><strong>Executing Agency:</strong> ${report.executing_agency || '-'}</p>
+            <p><strong>Contractor Contact:</strong> ${report.contractor_contact || '-'}</p>
+            <p><strong>Status:</strong> ${report.status}</p>
+        `;
 
     document.getElementById('panelFooter').innerHTML = `
-        <button class="btn btn-secondary" onclick="closeSidePanel()">Close</button>
-        ${report.pdf_url ? `
-            <button class="btn btn-primary"
-                onclick="downloadNotice('${report.id}')">
-                ⬇ Download PDF
-            </button>
-        ` : ''}
-    `;
+            <button class="btn btn-secondary" onclick="closeSidePanel()">Close</button>
+            ${report.pdf_url ? `
+                <button class="btn btn-primary"
+                    onclick="downloadNotice('${report.id}')">
+                    ⬇ Download PDF
+                </button>
+            ` : ''}
+        `;
 
     document.getElementById('sidePanel').classList.add('open');
     document.getElementById('sidePanelOverlay').classList.add('open');
@@ -187,47 +210,6 @@ async function downloadNotice(reportId) {
     }
 }
 
-
-function setupDropZone() {
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-
-    dropZone.addEventListener('click', () => fileInput.click());
-
-    fileInput.addEventListener('change', async (e) => {
-        const pdf = e.target.files[0];
-        if (!pdf) return;
-
-        const formData = new FormData();
-        formData.append('pdf', pdf);
-
-        const extractionStatus = document.getElementById('extractionStatus');
-        extractionStatus.style.display = 'block';
-
-        try {
-            const res = await Auth.fetchWithAuth('/api/official/work-reports/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.msg || "Upload failed");
-            }
-
-            closeCreateReportModal();
-            await loadReports();
-            renderTable();
-        } catch (error) {
-            console.error('Upload error:', error);
-            showModal("Upload Failed", error.message);
-        } finally {
-            extractionStatus.style.display = 'none';
-            fileInput.value = ''; // Reset file input
-        }
-    });
-}
 
 // =====================================================
 // CREATE REPORT MODAL
@@ -281,12 +263,13 @@ function setupDropZone() {
 // UPLOAD PDF
 // =====================================================
 async function uploadNoticePDF(file) {
-    if (!file.name.endsWith('.pdf')) {
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
         showModal('Invalid File', 'Please upload a PDF file only.');
         return;
     }
 
-    document.getElementById('extractionStatus').style.display = 'flex';
+    const extractionStatus = document.getElementById('extractionStatus');
+    extractionStatus.style.display = 'flex';
 
     const formData = new FormData();
     formData.append('pdf', file);
@@ -310,9 +293,11 @@ async function uploadNoticePDF(file) {
         renderTable();
 
     } catch (err) {
+        console.error('Upload error:', err);
         showModal('Error', err.message);
     } finally {
-        document.getElementById('extractionStatus').style.display = 'none';
+        extractionStatus.style.display = 'none';
+        document.getElementById('fileInput').value = ''; // Reset
     }
 }
 

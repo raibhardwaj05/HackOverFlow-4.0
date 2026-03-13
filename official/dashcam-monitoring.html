@@ -87,24 +87,50 @@
 
             <!-- Before/After Photos -->
             <div class="photos-section stat-card">
-                <h2>Photo Documentation</h2>
-                <div class="photo-comparison">
+                <h2>Photo Documentation (Dashcam)</h2>
+                <div class="photo-comparison dashcam-grid">
+                    <!-- Before Section -->
                     <div class="photo-card stat-card">
-                        <h3>Before</h3>
-                        <img id="beforePhoto" class="comparison-photo" alt="Before repair">
+                        <h3>Before (Detected Sequence)</h3>
+                        <div class="dual-photo-grid">
+                            <div class="photo-slot">
+                                <span class="photo-label">First Image</span>
+                                <img id="beforePhoto" class="comparison-photo" alt="First detection">
+                            </div>
+                            <div class="photo-slot">
+                                <span class="photo-label">Last Image</span>
+                                <img id="beforePhotoLast" class="comparison-photo" alt="Last detection">
+                            </div>
+                        </div>
                     </div>
+                    
+                    <!-- After Section -->
                     <div class="photo-card stat-card">
-                        <h3>After</h3>
-                        <div class="after-photo-container">
-                            <img id="afterPhoto" class="comparison-photo" alt="After repair">
-                            <div class="upload-overlay">
-                                <button class="upload-btn" onclick="document.getElementById('afterImageUpload').click()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
-                                    </svg>
-                                    Upload Image
-                                </button>
-                                <input type="file" id="afterImageUpload" accept="image/*" style="display: none;" onchange="handleAfterImageUpload(event)">
+                        <h3>After (Repair Documentation)</h3>
+                        <div class="dual-photo-grid">
+                            <div class="photo-slot">
+                                <span class="photo-label">First Image</span>
+                                <div class="after-photo-container">
+                                    <img id="afterPhoto" class="comparison-photo" alt="After First">
+                                </div>
+                                <div class="upload-overlay small">
+                                    <button class="upload-btn" onclick="document.getElementById('afterImageUploadFirst').click()">
+                                        Upload First
+                                    </button>
+                                    <input type="file" id="afterImageUploadFirst" accept="image/*" style="display: none;" onchange="handleAfterImageUpload(event, 'first')">
+                                </div>
+                            </div>
+                            <div class="photo-slot">
+                                <span class="photo-label">Last Image</span>
+                                <div class="after-photo-container">
+                                    <img id="afterPhotoLast" class="comparison-photo" alt="After Last">
+                                </div>
+                                <div class="upload-overlay small">
+                                    <button class="upload-btn" onclick="document.getElementById('afterImageUploadLast').click()">
+                                        Upload Last
+                                    </button>
+                                    <input type="file" id="afterImageUploadLast" accept="image/*" style="display: none;" onchange="handleAfterImageUpload(event, 'last')">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -121,7 +147,7 @@
                             <span class="checkmark"></span>
                             I confirm that the report is completed and the issue is solved.
                         </label>
-                        <p class="helper-text" id="uploadHelperText" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;">Please upload the After image to enable verification.</p>
+                        <p class="helper-text" id="uploadHelperText" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;">Please upload both After images (First & Last) to enable verification.</p>
                     </div>
                     <div class="form-group">
                         <label for="completionDescription">Work Summary / Description</label>
@@ -168,7 +194,7 @@
     <script src="../shared/modal.js"></script>
     <script src="../shared/auth.js"></script>
     <script src="scripts/storage-helper.js"></script>
-    <script src="scripts/monitoring.js"></script>
+    <script src="scripts/dashcam-monitoring.js"></script>
 </body>
 
 </html>

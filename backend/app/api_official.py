@@ -45,6 +45,7 @@ def get_all_reports():
             "confidence": r.confidence_score,
             "severity": r.severity,
             "status": r.status,
+            "report_source": r.report_source,
             "created_at": r.created_at.isoformat(),
             "image_url": f"/api/files/images/{r.image_path}"
         }
@@ -71,6 +72,7 @@ def get_report(report_id):
         "confidence": report.confidence_score,
         "severity": report.severity,
         "status": report.status,
+        "report_source": report.report_source,
         "created_at": report.created_at.isoformat(),
         "image_url": f"/api/files/images/{report.image_path}",
         "reported_by": "Citizen"  # replace later with user lookup

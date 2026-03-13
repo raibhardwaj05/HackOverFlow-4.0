@@ -67,9 +67,13 @@ async function loadContractors() {
 // RENDER REPORT DETAILS
 // =====================================================
 function renderReportDetails(report) {
+    const locStr = (report.latitude && report.longitude)
+        ? `Lat: ${report.latitude.toFixed(4)}, Lng: ${report.longitude.toFixed(4)}`
+        : report.location;
+
     document.getElementById('reportDetails').innerHTML = `
         <div class="report-detail-row"><strong>Report ID:</strong> <span title="${report.id}">${report.id.split('-')[0].substring(0, 8)}</span></div>
-        <div class="report-detail-row"><strong>Location:</strong> ${report.location}</div>
+        <div class="report-detail-row"><strong>Location:</strong> ${locStr}</div>
         <div class="report-detail-row"><strong>Damage Type:</strong> ${report.damage_type}</div>
         <div class="report-detail-row"><strong>Severity:</strong> ${report.severity}</div>
         <div class="report-detail-row"><strong>Confidence:</strong> ${report.confidence ? (report.confidence * 100).toFixed(2) + '%' : 'N/A'}</div>
@@ -123,12 +127,16 @@ function updatePreview() {
 
     const contractor = contractors.find(c => c.id == contractorId);
 
+    const locStr = (reportData.latitude && reportData.longitude)
+        ? `Lat: ${reportData.latitude.toFixed(4)}, Lng: ${reportData.longitude.toFixed(4)}`
+        : reportData.location;
+
     document.getElementById('workOrderPreview').textContent = `
 WORK ORDER
 ========================================
 Report ID: ${reportData.id}
 Damage Type: ${reportData.damage_type}
-Location: ${reportData.location}
+Location: ${locStr}
 
 ----------------------------------------
 Contractor: ${contractor ? contractor.name : '[Not Selected]'}
@@ -183,7 +191,7 @@ async function assignWork() {
         );
 
         setTimeout(() => {
-            window.location.href = 'assignment.html';
+            window.location.href = 'dashboard.html';
         }, 1500);
 
     } catch (err) {
@@ -195,7 +203,7 @@ async function assignWork() {
 // CANCEL
 // =====================================================
 function cancelAssignment() {
-    window.location.href = 'assignment.html';
+    window.location.href = 'dashboard.html';
 }
 
 // =====================================================

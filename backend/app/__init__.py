@@ -27,7 +27,7 @@ def create_app(config_class=Config):
     # Extensions
     # ------------------------
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app, db, render_as_batch=True)
     jwt.init_app(app)
 
     # ------------------------
@@ -65,6 +65,9 @@ def create_app(config_class=Config):
     from app.auth import auth_bp
     app.register_blueprint(auth_bp)
 
+    from app.device_auth import auth_bp as device_auth_bp
+    app.register_blueprint(device_auth_bp)
+
     from app.api_citizen import citizen_bp
     app.register_blueprint(citizen_bp, url_prefix='/api/citizen')
 
@@ -77,5 +80,10 @@ def create_app(config_class=Config):
 
     from app.routes import main_bp
     app.register_blueprint(main_bp)
+
+    from app.dashcam import dashcam_bp
+    app.register_blueprint(dashcam_bp)
+
+
 
     return app
